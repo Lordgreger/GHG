@@ -91,7 +91,7 @@ public class Map {
             return nextMap; // no effect
         }
         int nextAvatarIndex = GetNextAvatarIndex(action, avatarIndex);
-        //System.out.println(avatarIndex+" "+nextAvatarIndex);
+        // System.out.println(avatarIndex+" "+nextAvatarIndex);
         if (nextAvatarIndex >= 0 && nextAvatarIndex < map.Length)
         {
             if (nextMap[nextAvatarIndex] != '#')
@@ -114,7 +114,7 @@ public class Map {
             return nextMap; // no effect
         }
         int nextGhostIndex = GetNextAvatarIndex(action, ghostIndex);
-        //System.out.println(avatarIndex+" "+nextAvatarIndex);
+        // System.out.println(avatarIndex+" "+nextAvatarIndex);
         if (nextGhostIndex >= 0 && nextGhostIndex < map.Length)
         {
             if (nextMap[nextGhostIndex] != 'G' && nextMap[nextGhostIndex] != '@')
@@ -137,7 +137,7 @@ public class Map {
             return nextMap; // no effect
         }
         int nextGhostIndex = GetNextAvatarIndex(action, ghostIndex);
-        //System.out.println(avatarIndex+" "+nextAvatarIndex);
+        // System.out.println(avatarIndex+" "+nextAvatarIndex);
         if (nextGhostIndex >= 0 && nextGhostIndex < map.Length)
         {
             if (nextMap[nextGhostIndex] != 'G' && nextMap[nextGhostIndex] != '@')

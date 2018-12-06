@@ -62,10 +62,18 @@ public class UCT : MonoBehaviour
         int iterations = 0;
         while (!Terminate(iterations))
         {
+            currentNode = rootNode;
+            print("i: " + iterations);
             iterations++;
 
             //TODO Implement UCT algorithm here
-            throw new UnityException("You didn't implement something!");
+            //throw new UnityException("You didn't implement something!");
+
+            // Tree policy
+            TreePolicy();
+            // Default policy
+            // Back propagation
+            Backpropagate(DefaultPolicy());
         }
 
         /*
@@ -76,8 +84,16 @@ public class UCT : MonoBehaviour
         //and we apply the exploitation of it to find the child with the highest average reward
         int bestAction = 0;
         float bestReward = 0;
+
+        foreach (Node node in rootNode.children) {
+            if (node.reward > bestReward) {
+                bestReward = node.reward;
+                bestAction = node.parentAction;
+            }
+        }
+
         // TODO calculate which is the best action
-        throw new UnityException("You didn't implement something!");
+        //throw new UnityException("You didn't implement something!");
 
         return bestAction;
     }
@@ -89,7 +105,20 @@ public class UCT : MonoBehaviour
     private void TreePolicy()
     {
         //TODO implement the tree policy
-        throw new UnityException("You didn't implement something!");
+        //throw new UnityException("You didn't implement something!");
+
+        if (currentNode == null)
+            print("NULL NODE!");
+        if (currentNode.state == null)
+            print("NULL STATE");
+        while(!TerminalState(currentNode.state)) {
+            if (!FullyExpanded(currentNode)) {
+                Expand();
+            }
+            else {
+                BestChild(C);
+            }
+        }
 
     }
 
@@ -101,7 +130,9 @@ public class UCT : MonoBehaviour
     private bool FullyExpanded(Node nt)
     {
         // TODO check if the node nt is fully expanded or not
-        throw new UnityException("You didn't implement something!");
+        //throw new UnityException("You didn't implement something!");
+        if (UntriedAction(nt) == -1)
+            return true;
         return false;
     }
 
@@ -122,7 +153,18 @@ public class UCT : MonoBehaviour
                 maze.GetNextState(action, currentNode.state)));
 
         // TODO: add child to the children of the current node, set parent and parentAction of child, change currentNode
-        throw new UnityException("You didn't implement something!");
+        //throw new UnityException("You didn't implement something!");
+
+        // add child to the children of the current node
+        currentNode.children.Add(child);
+
+        // set parent and parentAction of child
+        child.parent = currentNode;
+        child.parentAction = action;
+
+        // change currentNode
+        currentNode = child;
+
 
     }
 
@@ -137,8 +179,16 @@ public class UCT : MonoBehaviour
         Node bestChild = null;
 
         // TODO find best child
-        throw new UnityException("You didn't z something!");
+        // throw new UnityException("You didn't z something!");
 
+        float maxNodeResult = float.MinValue;
+        foreach (Node node in nt.children) {
+            float nodeResult = UCTvalue(node, c);
+            if (nodeResult > maxNodeResult) {
+                bestChild = node;
+                maxNodeResult = nodeResult;
+            } 
+        }
         currentNode = bestChild;
     }
 
@@ -151,8 +201,9 @@ public class UCT : MonoBehaviour
     private float UCTvalue(Node n, float c)
     {
         // TODO: calculate the UCT value for the node n ad return it
-        throw new UnityException("You didn't implement something!");
-        return 0;
+        // throw new UnityException("You didn't implement something!");
+
+        return (n.reward / n.timesvisited) + c * (Mathf.Sqrt((2 * Mathf.Log(currentNode.timesvisited)) / n.timesvisited));
     }
 
     /**
@@ -180,7 +231,13 @@ public class UCT : MonoBehaviour
     private void Backpropagate(float reward)
     {
         // TODO update the reward and timesvisited of the current node and all its parents until you reach the root of the tree
-        throw new UnityException("You didn't implement something!");
+        //throw new UnityException("You didn't implement something!");
+        while (currentNode != rootNode) {
+            currentNode.reward += reward;
+            currentNode.timesvisited++;
+            currentNode = currentNode.parent;
+        }
+
     }
 
     /**
