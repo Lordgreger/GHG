@@ -5,65 +5,57 @@ using UnityEngine;
 public class SphereCPPNControler : MonoBehaviour {
 
     public float maxSpeed;
+    Vector2 vel = new Vector2();
+    float traveledDistance = 0;
+
+    // 1844
 
     Rigidbody rb;
 
-    List<CPPN.Neuron> inputNeurons = new List<CPPN.Neuron>() {
-            new CPPN.Neuron(CPPN.Neuron.Type.input, -1),
-            new CPPN.Neuron(CPPN.Neuron.Type.input, -1),
-            new CPPN.Neuron(CPPN.Neuron.Type.input, -1)
-        };
-
-    List<CPPN.Neuron> outputNeurons = new List<CPPN.Neuron>() {
-            new CPPN.Neuron(CPPN.Neuron.Type.output, -2),
-            new CPPN.Neuron(CPPN.Neuron.Type.output, -2)
-        };
-
-    List<CPPN.Neuron> hiddenNeurons = new List<CPPN.Neuron>() {
-            new CPPN.Neuron(CPPN.Neuron.Type.sigmoid, 0),
-            new CPPN.Neuron(CPPN.Neuron.Type.sine, 0),
-            new CPPN.Neuron(CPPN.Neuron.Type.sigmoid, 1)
-        };
-
-    List<CPPN.Gene> hiddenGenes = new List<CPPN.Gene>() {
-            new CPPN.Gene(CPPN.inputLayer, 0, 0, 0, true, 0.5f),
-            new CPPN.Gene(CPPN.inputLayer, 1, 0, 1, true, 0.5f),
-            new CPPN.Gene(CPPN.inputLayer, 2, 0, 1, true, 1f),
-
-            new CPPN.Gene(0, 0, 1, 0, true, 0.5f),
-            new CPPN.Gene(0, 1, 1, 0, true, 0.5f),
-
-            new CPPN.Gene(0, 1, CPPN.outputLayer, 1, true, 1f),
-            new CPPN.Gene(1, 0, CPPN.outputLayer, 0, true, 1f)
-        };
-
-    CPPN cppn = new CPPN();
+    CPPN cppn;
+    InnovationAssigner neuronIA = new InnovationAssigner(3, 2);
+    InnovationAssigner connectionIA = new InnovationAssigner(3, 2);
 
     private void Start() {
-        cppn.setInputNeurons(inputNeurons);
-        cppn.setOutputNeurons(outputNeurons);
-        //cppn.setHidden(CPPN.HiddenLayer.getNewRandomHiddenLayer(Random.Range(0, 10000), inputNeurons, outputNeurons));
-        cppn.generateHidden(Random.Range(0, 10000));
-        cppn.printOutputConnections();
-        cppn.printHiddenInputs(0);
-        cppn.printHiddenOutputs(0);
+        int seed = Random.Range(0, 10000);
+        Random.InitState(seed);
+        Debug.Log("Seed: " + seed);
+        CPPN cppn1 = new CPPN(3, 2, neuronIA, connectionIA);
+        cppn1.printGenome();
+        CPPN cppn2 = new CPPN(3, 2, neuronIA, connectionIA);
+        cppn2.printGenome();
+        CPPN.Genome genome = CPPNLib.Crossover(cppn1.genome, cppn2.genome);
+        genome.mutate(neuronIA, connectionIA);
+        cppn = new CPPN(genome, neuronIA, connectionIA);
+        cppn.printGenome();
+        Debug.Log("fitness: " + Fitness(cppn, 100));
         rb = GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate() {
-        /*
-        Debug.Log("{ " + rb.velocity.x + ", " + rb.velocity.z + " }");
-        List<float> result = cppn.setInputGetoutput(new List<float>() { rb.velocity.x, rb.velocity.z, Time.time });
-        result[0] = Mathf.Clamp(result[0], -maxSpeed, maxSpeed);
-        result[1] = Mathf.Clamp(result[1], -maxSpeed, maxSpeed);
-        rb.velocity = new Vector3(result[0], 0, result[1]);
-        */
-
-        Debug.Log("{ " + transform.position.x + ", " + transform.position.z + " }");
-        List<float> result = cppn.setInputGetoutput(new List<float>() { transform.position.x, transform.position.x, Time.time + 1});
-        transform.Translate(new Vector3(result[0], 0, result[1]) - transform.position);
-
+        float[] input = { vel[0], vel[1], traveledDistance };
+        float[] result = cppn.setInputGetoutput(input);
+        vel[0] = Mathf.Clamp(result[0], -maxSpeed * Time.deltaTime, maxSpeed * Time.deltaTime);
+        vel[1] = Mathf.Clamp(result[1], -maxSpeed * Time.deltaTime, maxSpeed * Time.deltaTime);
+        traveledDistance += vel.magnitude;
+        transform.Translate(vel[0], 0, vel[1], Space.Self);
     }
 
+    public float Fitness(CPPN cppn, int evaluationIterations) {
+        //float output = 0;
+        Vector2 vel = new Vector2();
+        Vector2 pos = new Vector2();
+        float traveledDistance = 0;
 
+        for (int i = 0; i < evaluationIterations; i++) {
+            float[] input = { vel[0], vel[1], traveledDistance };
+            float[] result = cppn.setInputGetoutput(input);
+            vel[0] = Mathf.Clamp(result[0], -maxSpeed * Time.deltaTime, maxSpeed * Time.deltaTime);
+            vel[1] = Mathf.Clamp(result[1], -maxSpeed * Time.deltaTime, maxSpeed * Time.deltaTime);
+            traveledDistance += vel.magnitude;
+            pos += vel;
+        }
+
+        return pos.magnitude + traveledDistance;
+    }
 }
