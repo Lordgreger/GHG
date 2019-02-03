@@ -372,8 +372,8 @@ public class CPPN {
 
         public void mutate(InnovationAssigner nIA, InnovationAssigner cIA) {
             mutationModifyConnection(0.8f);
-            mutationAddConnection(0.05f, cIA);
-            mutationAddNeuron(0.03f, nIA, cIA);
+            mutationAddConnection(0.08f, cIA);
+            mutationAddNeuron(0.05f, nIA, cIA);
         }
 
         void mutationModifyConnection(float mutationChance) {
@@ -386,12 +386,12 @@ public class CPPN {
                         else
                             newWeight = c.Value.weight - 0.05f;
 
-                        Debug.Log("Mutated weight from " + c.Value.weight + " to " + newWeight);
+                        //Debug.Log("Mutated weight from " + c.Value.weight + " to " + newWeight);
                         c.Value.setWeight(newWeight);
                     }
                     else {
                         float newWeight = Random.Range(-1f, 1f);
-                        Debug.Log("New random weight from " + c.Value.weight + " to " + newWeight);
+                        //Debug.Log("New random weight from " + c.Value.weight + " to " + newWeight);
                         c.Value.setWeight(newWeight);
                     }
                 }
@@ -407,7 +407,7 @@ public class CPPN {
                         float weight = Random.Range(-1f, 1f);
                         ConnectionGene newConnection = new ConnectionGene(cIA.getInnovation(), chosen, n.Value.innovation, weight);
                         connectionGenes.Add(newConnection.innovation, newConnection);
-                        Debug.Log("New connection from " + newConnection.fromNeuronInnovation + " to " + newConnection.toNeuronInnovation);
+                        //Debug.Log("New connection from " + newConnection.fromNeuronInnovation + " to " + newConnection.toNeuronInnovation);
                     }
                 }
             }
@@ -420,12 +420,12 @@ public class CPPN {
                 if (Random.Range(0f, 1f) <= mutationChance) {
                     // New neuron
                     NeuronGene ng = new NeuronGene(neuronGenes[c.Value.fromNeuronInnovation].layer + 1, (Neuron.Type)Random.Range(0, (int)Neuron.Type.amountOfTypes), nIA.getInnovation(), false, false);
-                    Debug.Log("New neuron: " + ng.innovation + " layer " + ng.layer);
+                    //Debug.Log("New neuron: " + ng.innovation + " layer " + ng.layer);
 
                     // Create connection from new to old target neuron
                     float weight = Random.Range(-1f, 1f);
                     ConnectionGene cg = new ConnectionGene(cIA.getInnovation(), ng.innovation, c.Value.toNeuronInnovation, weight);
-                    Debug.Log("New connection from " + cg.fromNeuronInnovation + " to " + cg.toNeuronInnovation);
+                    //Debug.Log("New connection from " + cg.fromNeuronInnovation + " to " + cg.toNeuronInnovation);
 
                     // Move connection to new neuron
                     c.Value.setTarget(ng.innovation);
@@ -451,6 +451,21 @@ public class CPPN {
             }
             return candidates.ToArray();
         }
+
+        public Genome copy() {
+            Genome copy = new Genome();
+            copy.neuronGenes = new Dictionary<int, NeuronGene>();
+            foreach (var n in neuronGenes) {
+                NeuronGene ng = n.Value.copy();
+                copy.neuronGenes.Add(ng.innovation, ng);
+            }
+            copy.connectionGenes = new Dictionary<int, ConnectionGene>();
+            foreach (var c in connectionGenes) {
+                ConnectionGene cg = c.Value.copy();
+                copy.connectionGenes.Add(cg.innovation, cg);
+            }
+            return copy;
+        }
     }
 
     public struct NeuronGene {
@@ -466,6 +481,10 @@ public class CPPN {
             this.isInput = isInput;
             this.isOutput = isOutput;
         }
+
+        public NeuronGene copy() {
+            return new NeuronGene(layer, type, innovation, isInput, isOutput);
+        }
     }
 
     public struct ConnectionGene {
@@ -479,6 +498,10 @@ public class CPPN {
             this.fromNeuronInnovation = fromNeuronInnovation;
             this.toNeuronInnovation = toNeuronInnovation;
             this.weight = weight;
+        }
+
+        public ConnectionGene copy() {
+            return new ConnectionGene(innovation, fromNeuronInnovation, toNeuronInnovation, weight);
         }
 
         public void setWeight(float iweight) {
