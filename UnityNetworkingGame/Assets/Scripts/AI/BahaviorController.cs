@@ -14,12 +14,13 @@ public interface BehaviorController {
 }
 
 public class BehaviorUser : MonoBehaviour {
-    protected BehaviorController behaviorController;
+    public BehaviorController behaviorController;
 }
 
 public class BehaviorControllerPriority : BehaviorController {
     Behavior current = null;
     public SortedList<int, Behavior> behaviors = new SortedList<int, Behavior>();
+    public bool behaviorLocked = false;
 
     public BehaviorControllerPriority(SortedList<int, Behavior> behaviors) {
         this.behaviors = behaviors;
@@ -41,7 +42,9 @@ public class BehaviorControllerPriority : BehaviorController {
     }
 
     public void update() {
-        chooseBehavior();
+        if (!behaviorLocked) {
+            chooseBehavior();
+        }
         current.update();
     }
 }

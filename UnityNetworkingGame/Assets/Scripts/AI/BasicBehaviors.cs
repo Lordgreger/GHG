@@ -8,14 +8,15 @@ namespace BasicBehaviors {
         BehaviorUser user;
         NavMeshAgent nav;
         GameObject player = null;
+        float maxDistance;
 
-        public GoTowardsPlayer(BehaviorUser user) {
+        public GoTowardsPlayer(BehaviorUser user, float maxDistance) {
             this.user = user;
+            this.maxDistance = maxDistance;
             nav = user.GetComponent<NavMeshAgent>();
         }
 
         float distanceToPlayer() {
-            playerCheck();
             return (user.transform.position - player.transform.position).magnitude;
         }
 
@@ -23,14 +24,13 @@ namespace BasicBehaviors {
             player = GameObject.FindGameObjectWithTag("Player");
         }
 
-        void playerCheck() {
-            if (player == null) {
-                updatePlayer();
-            }
-        }
-
         public bool evaluate() {
-            if (distanceToPlayer() > 5) {
+            updatePlayer();
+            if (player == null) {
+                return false;
+            }
+
+            if (distanceToPlayer() > maxDistance) {
                 return true;
             }
             return false;
@@ -48,7 +48,11 @@ namespace BasicBehaviors {
         }
 
         public void update() {
-            playerCheck();
+            updatePlayer();
+            if (player == null) {
+                Debug.LogError("No player to follow! (Should not be possible)");
+                return;
+            }
             nav.SetDestination(player.transform.position);
         }
     }
