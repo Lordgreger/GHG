@@ -12,6 +12,7 @@ public class Enemy : EnemyBehavior {
     private void Start() {
         if (networkObject.IsOwner) {
             life = maxLife;
+            networkObject.life = life;
         }
     }
 
