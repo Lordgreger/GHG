@@ -14,6 +14,8 @@ public class SimpleMeleeAI : BehaviorUser {
     public MeshRenderer attackBoxMesh;
 
     private void Start() {
+        attackBoxMesh.enabled = false;
+
         SortedList<int, Behavior> behaviors = new SortedList<int, Behavior>();
         behaviors.Add(1, new Attack(this));
         behaviors.Add(2, new GoTowardsPlayer(this, 0.4f));
@@ -60,10 +62,12 @@ public class SimpleMeleeAI : BehaviorUser {
         }
 
         IEnumerator AttackWithDelay(float delay) {
+            user.attackBoxMesh.enabled = true;
             yield return new WaitForSeconds(delay);
             attack();
             (user.behaviorController as BehaviorControllerPriority).behaviorLocked = false;
             canAttack = true;
+            user.attackBoxMesh.enabled = false;
         }
 
         void attack() {

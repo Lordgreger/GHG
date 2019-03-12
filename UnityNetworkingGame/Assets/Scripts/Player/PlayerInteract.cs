@@ -35,7 +35,7 @@ public class PlayerInteract : MonoBehaviour {
     void checkInput() {
         if (Input.GetKeyDown(KeyCode.E)) {
             if (interactable != null)
-                interactable.interact();
+                interactable.interact(this);
         }
     }
 

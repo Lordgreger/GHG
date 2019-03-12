@@ -5,8 +5,8 @@ using UnityEngine;
 public class Interactable : MonoBehaviour {
 
     public string msg;
-    public virtual void interact() {
-
+    public virtual void interact(PlayerInteract pi = null) {
+        
     }
 
 }
