@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class AreaConstants {
-    public const int tileResolution = 32;
+    public const int tileResolution = 64;
     public const int depth = 100;
     public const int width = 128;
     public const int height = 128;
@@ -91,7 +91,7 @@ public class AreaData {
 
         setZero();
 
-        createHill(2, 2, 4);
+        createHill(6, 6, 16);
 
 
 
@@ -101,6 +101,7 @@ public class AreaData {
         for (int i = 0; i < heights.GetLength(0); i++) {
             for (int j = 0; j < heights.GetLength(1); j++) {
                 float pointSize = (float)size - Mathf.Sqrt(Mathf.Pow((float)i - (float)x, 2) + Mathf.Pow((float)j - (float)y, 2));
+                pointSize *= 0.75f;
                 if (heights[i, j] < pointSize) {
                     heights[i, j] = Mathf.RoundToInt(pointSize);
                 }
